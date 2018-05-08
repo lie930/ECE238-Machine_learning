@@ -1,0 +1,8 @@
+http://cs231n.stanford.edu/reports/2016/pdfs/286_Report.pdf
+http://cs231n.stanford.edu/reports/2017/pdfs/119.pdf
+
+SVM:
+https://arxiv.org/abs/1306.0239
+
+SVM vs CNN:
+https://arxiv.org/abs/1712.03541
