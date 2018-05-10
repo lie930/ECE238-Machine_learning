@@ -187,7 +187,7 @@ plot_table(pk_EM,K_max,'EM');
 
 
 %% Plotting
-h = figure; set(h,'WindowStyle','docked');
+h = figure(1); set(h,'WindowStyle','docked');
 subplot(2,3,1);
 hold on;
 for i = 1:N
@@ -233,7 +233,7 @@ for K = 2:K_max
     title(['K = ' num2str(K)]);
     hold off;
 end
-suptitle('Original components, K-means clusters and EM contours');
+%title('Original components, K-means clusters and EM contours');
 
 %% Comments
 % Problem 4: A new vector is too correlated to another vector if the average absolute
