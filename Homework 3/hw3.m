@@ -1,7 +1,7 @@
 clear all;
 close all;
 clc;
-
+addpath('Functions');
 %% Component definitions
 N = 200;
 
@@ -187,7 +187,7 @@ plot_table(pk_EM,K_max,'EM');
 
 
 %% Plotting
-h = figure(1); set(h,'WindowStyle','docked');
+h = figure(1); %set(h,'WindowStyle','docked');
 subplot(2,3,1);
 hold on;
 for i = 1:N
