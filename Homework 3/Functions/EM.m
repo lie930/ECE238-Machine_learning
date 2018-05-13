@@ -38,15 +38,11 @@ end
 pk_ave = zeros(3,K);
 n = zeros(3,1);
 for i = 1:N
-    if Z(i,1) == 1
-        pk_ave(1,:) = pk_ave(1,:) + pk(i,:);
-        n(1) = n(1) + 1;
-    elseif Z(i,2) == 1
-        pk_ave(2,:) = pk_ave(2,:) + pk(i,:);
-        n(2) = n(2) + 1;
-    elseif Z(i,3) == 1
-        pk_ave(3,:) = pk_ave(3,:) + pk(i,:);
-        n(3) = n(3) + 1;
+    for l = 1:3      
+        if Z(i,l) == 1
+            pk_ave(l,:) = pk_ave(l,:) + pk(i,:);
+            n(l) = n(l) + 1;
+        end
     end
 end
 pk_ave(1,:) = pk_ave(1,:)./n(1);
