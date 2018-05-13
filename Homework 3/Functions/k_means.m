@@ -1,6 +1,5 @@
 function [ m,C ] = k_means( N,K,C,X )
 convergence = 0;
-% TODO: Randomize mean
 m = zeros(K,size(X,2));
 C_new = zeros(N,1);
 while convergence == 0

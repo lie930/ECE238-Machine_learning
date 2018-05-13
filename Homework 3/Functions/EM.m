@@ -43,8 +43,11 @@ for i = 1:N
             pk_ave(l,:) = pk_ave(l,:) + pk(i,:);
             n(l) = n(l) + 1;
         end
+       
     end
 end
 pk_ave(1,:) = pk_ave(1,:)./n(1);
 pk_ave(2,:) = pk_ave(2,:)./n(2);
 pk_ave(3,:) = pk_ave(3,:)./n(3);
+
+
