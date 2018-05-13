@@ -1,3 +1,5 @@
+%% Homework 3, ECE283, Morten Lie. Collaboration with Sondre Kongsgård, Brage Sæther, Anders Vagle
+
 clear all;
 close all;
 clc;
@@ -139,16 +141,6 @@ for K = 2:K_max
 end
 plot_table(pk_EM,K_max,'EM');
 
-
-%% Generate a random vector u in d dimensions
-d = 30;
-u = zeros(d, 7);
-for j = 1:7
-    u(:,j) = generate_random_vector(d);
-    while check_orthogonality(u,j) == 0
-        u(:,j) = generate_random_vector(d);
-    end
-end
 %% Comments Problem 3
 % One may observe in the figure that the means and the covariances for the
 % example where we have K=3 clusters allign pretty well. For the other
@@ -159,7 +151,17 @@ plotData(X,Z,m_1,m_2,m_3,K_max,C_opt,m_opt,C_EM,m_EM,N);
 %% Comments problem 4
 % A new vector is too correlated to another vector if the average absolute
 % value of the product is greater than 0.2. (Based on experiements) The
-% code is precented as follows.
+% code is precented as follows from problem 5 and problem 6. 
+
+%% Generate a random vector u in d dimensions
+d = 30;
+u = zeros(d, 7);
+for j = 1:7
+    u(:,j) = generate_random_vector(d);
+    while check_orthogonality(u,j) == 0
+        u(:,j) = generate_random_vector(d);
+    end
+end
 
 %% Generate d-dimensional data samples
 sigma2 = 0.01;
@@ -203,6 +205,11 @@ for K = 2:K_max
 end
 plot_table(pk_kmeans_d,K_max,'d-dimensional K-means');
 
+%% Comments problem 7
+% The cluster centers with d-dimentional dataset relates to the vector u in
+% the way that the dimentions that u spans are also where the cluster
+% centers are offset from the origin. 
+
 %% d-dimentional EM
 m_EM_d = zeros(K_max,2,K_max);
 C_EM_d = zeros(2,2,K_max, K_max);
@@ -218,3 +225,9 @@ for K = 2:K_max
 end
 plot_table(pk_EM_d,K_max,'EM');
 
+%% Comments problem 8
+% The EM algorithm is run for the same number of K's as earlier, and the
+% eigen vectors of the covariance matrices relates to the mean and
+% covariance of the gaussian mixtures such that higher mean and small
+% variance for the gaussian mixtures yields smaller covariance from the EM
+% algorithm. 
