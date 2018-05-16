@@ -1,6 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+# Use external implementation of the SMO algorithm
+# http://jonchar.net/notebooks/SVM/
+
 class SMOModel:
     """Container object for the model used for sequential minimal optimization."""
 
