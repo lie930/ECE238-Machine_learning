@@ -6,3 +6,8 @@ https://arxiv.org/abs/1306.0239
 
 SVM vs CNN:
 https://arxiv.org/abs/1712.03541
+
+
+Gunstig:
+https://github.com/huyng/tensorflow-vgg/blob/master/vgg.py
+https://github.com/boyw165/tensorflow-vgg/blob/master/vgg16.py

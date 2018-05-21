@@ -43,9 +43,26 @@ frac_support_vectors = len(model.X[:,0][mask]) / len(model.X[:,0])
 print("Fraction of training data points that are support vectors:")
 print(frac_support_vectors)
 
+classified_points = [decision_function(model.alphas, model.y,
+                               model.kernel, model.X,
+                               np.array(x), model.b) for x in model.X]
+classified_points = np.array(classified_points).reshape(len(model.X[:, 0]), 1)
+
+classified_points[classified_points < 0] = -1
+classified_points[classified_points > 0] = 1
+
+misclassification_error = 0
+for i in range(len(y)):
+    if classified_points[i] != y[i]:
+        misclassification_error += 1
+
+print("Probability of incorrect classification:")
+missclass = misclassification_error / len(y)
+print(missclass)
 
 # Plotting
 fig, ax = plt.subplots(figsize=(16,16))
 grid, ax = plot_decision_boundary(output, ax)
 legend = plt.legend(loc='upper left', shadow=True, fontsize='x-large')
+plt.title("Fraction support vectors = " + str(frac_support_vectors) + "\nProbability of incorrect classification = " + str(missclass))
 plt.show()
