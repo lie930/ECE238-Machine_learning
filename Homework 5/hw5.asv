@@ -1,0 +1,29 @@
+%% Homework 5, ECE283, Morten Lie. Collaboration with Sondre Kongsgård, Brage Sæther, Anders Vagle
+
+clear all;
+close all;
+clc;
+addpath('functions');
+
+%% Data generation
+N = 200;
+d = 100;
+u = zeros(d, 6);
+sigma2 = 0.01;
+
+for j = 1:6
+    u(:,j) = generate_random_vector(d);
+    while check_orthogonality(u,j) == 0
+        u(:,j) = generate_random_vector(d);
+    end
+end
+
+[X, Z] = generate_sample_data(u,sigma2,N);
+
+%% PCA
+[U,S,V] = svd(X);
+eig_mea
+
+% Dominant singular values??
+
+
