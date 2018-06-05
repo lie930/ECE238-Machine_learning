@@ -105,7 +105,7 @@ for i = 1:m
 end
 
 n_draws = 10;
-lambdas = [0.001 0.01 0.1 1 10];
+lambdas = (0:10)/10;
 norm_MSE = zeros(length(lambdas),1);
 for draw = 1:n_draws
     [S, Z] = generate_sample_data(u,0,N); %Sigma = 0 to remove noise component implemented in function, if we need S later??
@@ -115,15 +115,15 @@ for draw = 1:n_draws
     end
     X = S + noise;
     y = 1/sqrt(m)*phi*X';
-    y = 1/sqrt(m)*phi*X';
+    
     B = [u(:,1) u(:,2) u(:,3) u(:,4) u(:,5) u(:,6)]; 
     lasso_mat = 1/sqrt(m)*phi*B;
+
+
     for i = 1:length(lambdas)
         lambda = lambdas(i);
         a_hat = lasso_func(lasso_mat,y,lambda);
         S_hat = (B*a_hat')';
-        % FIND OUT WHICH CLASS THE S BELONG TO, AND COMPUTE 3 DIFFERENT
-        % NORMALIZED MSE
         norm_MSE(i) = norm_MSE(i) + immse(S,S_hat)/sum(sum(S.^2));
     end
 end
