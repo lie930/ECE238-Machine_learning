@@ -4,14 +4,19 @@ import scipy.io
 
 def lasso():
     lasso_values = scipy.io.loadmat('lasso_values.mat')
-    matrix = lasso_values['lasso_mat']
+    lasso_mat = lasso_values['lasso_mat']
     y = lasso_values['y']
-    l = lasso_values['lambda']
+    l = lasso_values['lambdas']
+    N = len(y[0])
 
-    clf = linear_model.Lasso(alpha=l) # Set lambda ( called ’alpha ’ here )
-    clf.fit(matrix,y) # Solve Lasso problem
-    a_hat = clf.coef_ # Get a_hat
 
+    n_lambdas = len(l[0])
+    a_hat = np.zeros((N,6,n_lambdas))
+    for i in range(n_lambdas):
+        alpha = l[0][i]
+        clf = linear_model.Lasso(alpha=alpha, max_iter=10000) # Set lambda ( called ’alpha ’ here )
+        clf.fit(lasso_mat,y) # Solve Lasso problem
+        a_hat[:,:,i] = clf.coef_ # Get a_hat
     dict = {
         'a_hat': a_hat
     }

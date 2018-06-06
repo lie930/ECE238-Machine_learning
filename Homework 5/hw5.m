@@ -1,11 +1,36 @@
 %% Homework 5, ECE283, Morten Lie. Collaboration with Sondre Kongsgård, Brage Sæther, Anders Vagle
+%% Comments
+% Problem 1:
+% All eigenvalues that were greater than the mean were given the property
+% as a dominant eigenvalue. By trying different values for N, it seems like
+% the number of dominant eigenvalues increase with increasing N, but
+% plateaus at 6. 
 
+% Problem 2:
+% Geometric insight...
+
+% Problem 4:
+% After trying different values for m, I got that m=10 gave the best
+% reconstruction.
+
+% Problem 5:
+% When trying different lambdas, I first tried with values from 0,001 to 10 with increments of
+% multiples of 10, and then for further inspection, I tried values between
+% 0.005 and 0.01 and took the argmin of the sum of the normalized MSE,
+% summed over the classes. See plot for more details
+
+% Problem 8:
+
+
+%% Code
 clear all;
 close all;
 clc;
 addpath('functions');
 
 %% Parameters
+n_comps = 3;
+n_u = 6;
 N = 200;
 d = 100;
 u = zeros(d, 6);
@@ -13,21 +38,18 @@ sigma2 = 0.01;
 K_max = 5;
 n_rand_inits = 5;
 
-%% Data generation
-for j = 1:6
+%% Generate data
+for j = 1:n_u
     u(:,j) = generate_random_vector(d);
     while check_orthogonality(u,j) == 0
         u(:,j) = generate_random_vector(d);
     end
 end
-
 [X_d, Z_d] = generate_sample_data(u,sigma2,N);
 
 %% Part 1, Single value decomposision
 [U,S,V] = svd(X_d);
-
 eig_mean = eigenvalue_mean(S);
-d0 = 0;
 for d0 = 0:d
     if S(d0+1,d0+1) < eig_mean
         break
@@ -91,8 +113,8 @@ for K = 2:K_max
 end
 plot_table(pk_kmeans_d,K_max,'d-dimensional K-means');
 
-%% Random Projections and Compressed Sensing
-m = 10; %To be determined
+%% Part 2 Random Projections and Compressed Sensing
+m = 10; %Based on experiments
 phi = zeros(m,d);
 for i = 1:m
     for j = 1:d
@@ -105,40 +127,104 @@ for i = 1:m
 end
 
 n_draws = 10;
-lambdas = [0.001 0.01 0.1 1 10];
-norm_MSE = zeros(length(lambdas),1);
+lambdas = 0:0.0005:0.01;
+noise = zeros(1,d);
+norm_MSE = zeros(n_comps,length(lambdas));
 for draw = 1:n_draws
-    [S, Z] = generate_sample_data(u,0,N); %Sigma = 0 to remove noise component implemented in function, if we need S later??
+    [S, Z] = generate_sample_data(u,0,N); %Sigma = 0 to remove noise component implemented in function
     noise_matrix = normrnd(0,sigma2*eye(d));
     for j = 1:d
         noise(j) = noise_matrix(j,j);
     end
     X = S + noise;
-    y = 1/sqrt(m)*phi*X';
-    y = 1/sqrt(m)*phi*X';
+    y = (1/sqrt(m)*phi*X')';
     B = [u(:,1) u(:,2) u(:,3) u(:,4) u(:,5) u(:,6)]; 
     lasso_mat = 1/sqrt(m)*phi*B;
-    for i = 1:length(lambdas)
-        lambda = lambdas(i);
-        a_hat = lasso_func(lasso_mat,y,lambda);
-        S_hat = (B*a_hat')';
-        % FIND OUT WHICH CLASS THE S BELONG TO, AND COMPUTE 3 DIFFERENT
-        % NORMALIZED MSE
-        norm_MSE(i) = norm_MSE(i) + immse(S,S_hat)/sum(sum(S.^2));
+    a_hat = lasso_func(lasso_mat,y',lambdas);
+    
+    for l = 1:length(lambdas)
+        S_hat = (B*a_hat(:,:,l)')';
+        for i = 1:N
+            for comp = 1:n_comps
+                if Z(i,comp) == 1
+                    norm_MSE(comp,l) = norm_MSE(comp,l) + immse(S(i,:),S_hat(i,:))/sum(sum(S(i,:).^2));
+                end
+            end
+        end
     end
 end
 norm_MSE = norm_MSE./n_draws;
+[~,I] = min(sum(norm_MSE));
+lambda_opt = lambdas(I);
 
-%% Plotting
+fprintf(['Best lambda found was lambda = ' num2str(lambda_opt) '\n']);
+
+%% Plotting the MSE curves
 figure(1)
-plot(lambdas,norm_MSE,'Linewidth',1.5);
+hold on
+for comp = 1:n_comps
+    plot(lambdas,norm_MSE(comp,:),'Linewidth',1.5);
+end
+plot(lambdas, sum(norm_MSE),'Linewidth',1.5);
+scatter(lambda_opt,sum(norm_MSE(:,I)),'Linewidth',1.5);
+hold off
+legend('Component 1', 'Component 2', 'Component 3', '\Sigma', ['\lambda =' num2str(lambda_opt)]);
 xlabel('\lambda')
 ylabel('Normalized MSE');
 
 
-%% Comments
-% All eigenvalues that were greater than the mean were given the property
-% as a dominant eigenvalue. 
-% When we increase N, we say that d ....
+%% Compare projected data and original data with euclidean distances ????
+for i = 1:n_u
+    for j = 1:n_u     
+        D_orig  = sqrt(sum((u(:,i) - u(:,j)).^2));
+    end
+end
 
-% Geometric insight...
+%% m-dimensional k-means
+m_opt_m = zeros(K_max,size(y,2),K_max);
+C_opt_m = zeros(N,K_max);
+for K = 2:K_max  
+    min_sme = inf;
+    for i = 1:n_rand_inits
+        C_m = randi(K,N,1);
+        [m_m,C_m] = k_means(N,K,C_m,y);
+        sme = SME(m_m,y,C_m);
+        if sme < min_sme
+            m_opt_m(1:K,:,K) = m_m;
+            C_opt_m(:,K) = C_m;
+            min_sme = sme;
+        end
+    end
+end
+
+% One-hot encoding
+a = zeros(N,K_max,K_max);
+for K = 2:K_max
+    for i = 1:N     
+        a(i,C_opt_m(i,K),K) = 1;
+    end
+end
+
+%% Generate empirical probability table for m-dimensional data
+pk_kmeans_m = zeros(3,K_max,K_max);
+for K = 2:K_max
+    for l = 1:3
+        for k = 1:K
+            num_k_l = 0;
+            num_l = 0;
+            for i = 1:N
+                if Z(i,l) == 1
+                    num_l = num_l + 1;
+                    if a(i,k,K) == 1
+                        num_k_l = num_k_l + 1;
+                    end
+                end
+            end
+            pk_kmeans_m(l,k,K) = num_k_l/num_l;         
+        end
+    end
+end
+plot_table(pk_kmeans_m,K_max,'m-dimensional K-means');
+
+
+
